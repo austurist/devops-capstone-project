@@ -32,7 +32,7 @@ class TestAccountService(TestCase):
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
-        app.logger.setLevel(logging.CRITICAL)
+        app.logger.setLevel(logging.INFO)
         init_db(app)
 
     @classmethod
@@ -138,3 +138,13 @@ class TestAccountService(TestCase):
 
         response = self.client.get(f"{BASE_URL}/0", content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_account_list(self):
+        """It shall return with the list of all accounts"""
+        self._create_accounts(5)
+
+        response = self.client.get(f"{BASE_URL}", content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.get_json()
+        self.assertEqual(5, len(data))
