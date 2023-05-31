@@ -8,7 +8,7 @@ from flask import jsonify, request, make_response, abort, url_for   # noqa; F401
 from service.models import Account
 from service.common import status  # HTTP Status Codes
 from . import app  # Import Flask application
-from .common.error_handlers import not_found
+from .common.error_handlers import not_found, request_validation_error
 
 
 ############################################################
@@ -101,7 +101,26 @@ def read_account(account_id):
 ######################################################################
 
 # ... place you code here to UPDATE an account ...
+@app.route("/accounts/<int:account_id>", methods=["PUT"])
+def update_account(account_id):
+    """
+    Updates an account specified by its id, using the json payload
+    """
+    account_found = Account.find(account_id)
 
+    if not account_found:
+        app.logger.error("Account %s does not exist.", account_id)
+        return not_found(f"Account {account_id} does not exist.")
+
+    account_found.deserialize(request.get_json())
+
+    if not account_found.id == account_id:
+        app.logger.error("Invalid request, account id in URL: %d, and in the payload: %d is different",
+                         account_id, account_found.id)
+        return request_validation_error("ID mismatch")
+
+    account_found.update()
+    return account_found.serialize(), status.HTTP_200_OK
 
 ######################################################################
 # DELETE AN ACCOUNT
