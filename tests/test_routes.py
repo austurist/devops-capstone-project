@@ -148,3 +148,68 @@ class TestAccountService(TestCase):
 
         data = response.get_json()
         self.assertEqual(5, len(data))
+
+    def test_update_account(self):
+        """
+        Existing account shall be updated
+        """
+
+        original_account = AccountFactory()
+        original_response = self.client.post(
+            f"{BASE_URL}",
+            json=original_account.serialize(),
+            content_type="application/json")
+        self.assertEqual(original_response.status_code, status.HTTP_201_CREATED)
+        read_account = original_response.get_json()
+
+        #update account
+        read_account["name"] += " Foo"
+        read_account_id = read_account["id"]
+        updated_response = self.client.put(
+            f"{BASE_URL}/{read_account_id}",
+            json=read_account,
+            content_type="application/json")
+
+        self.assertEqual(updated_response.status_code, status.HTTP_200_OK)
+        updated_account = updated_response.get_json()
+        self.assertEqual(updated_account, read_account)
+
+    def test_update_nonexistent(self):
+        """
+        Nonexistent account results 404
+        """
+
+        account = AccountFactory()
+        response = self.client.put(
+            f"{BASE_URL}/0",
+            json=account.serialize(),
+            content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_invalid_update(self):
+        """
+        Account update with invalid ID shall be rejected
+        """
+
+        original_account = AccountFactory()
+        original_response = self.client.post(
+            f"{BASE_URL}",
+            json=original_account.serialize(),
+            content_type="application/json")
+        self.assertEqual(original_response.status_code, status.HTTP_201_CREATED)
+        read_data = original_response.get_json()
+
+        # save old account id
+        read_account_id = int(read_data["id"])
+
+        # make it invalid
+        read_account = Account()
+        read_account.deserialize(read_data)
+        read_account.id = read_account_id+1
+
+        response = self.client.put(
+            f"{BASE_URL}/{read_account_id}",
+            json=read_account.serialize(),
+            content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
