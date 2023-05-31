@@ -47,10 +47,15 @@ def create_accounts():
     """
     app.logger.info("Request to create an Account")
     check_content_type("application/json")
+    app.logger.info("Content type checked")
     account = Account()
+    app.logger.info("Empty account")
     account.deserialize(request.get_json())
+    app.logger.info("account deserialized")
     account.create()
+    app.logger.info("account created")
     message = account.serialize()
+    app.logger.info("account serialized")
     # Uncomment once get_accounts has been implemented
     location_url = url_for("read_account", account_id=account.id, _external=True)
     # location_url = "/"  # Remove once get_accounts has been implemented
@@ -113,13 +118,8 @@ def update_account(account_id):
         return not_found(f"Account {account_id} does not exist.")
 
     account_found.deserialize(request.get_json())
-
-    if not account_found.id == account_id:
-        app.logger.error("Invalid request, account id in URL: %d, and in the payload: %d is different",
-                         account_id, account_found.id)
-        return request_validation_error("ID mismatch")
-
     account_found.update()
+
     return account_found.serialize(), status.HTTP_200_OK
 
 ######################################################################
