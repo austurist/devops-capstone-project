@@ -49,7 +49,6 @@ class TestAccountService(TestCase):
     def tearDown(self):
         """Runs once after each test case"""
         db.session.remove()
-        db.drop_all()
 
     ######################################################################
     #  H E L P E R   M E T H O D S
@@ -133,3 +132,9 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(data["name"], account.name)
+
+    def test_account_not_found(self):
+        """It should return with error, if account id is invalid"""
+
+        response = self.client.get(f"{BASE_URL}/0", content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
