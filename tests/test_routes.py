@@ -32,7 +32,7 @@ class TestAccountService(TestCase):
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
-        app.logger.setLevel(logging.INFO)
+        app.logger.setLevel(logging.CRITICAL)
         init_db(app)
 
     @classmethod
@@ -213,3 +213,38 @@ class TestAccountService(TestCase):
             content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_delete_account(self):
+        """It should Delete an Account"""
+        account = self._create_accounts(1)[0]
+        # send a self.client.delete() request to the BASE_URL with an id of an account
+        delete_response = self.client.delete(f"{BASE_URL}/{account.id}")
+        # assert that the resp.status_code is status.HTTP_204_NO_CONTENT
+        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # account is really not there
+        get_response = self.client.get(f"{BASE_URL}/{account.id}")
+        self.assertEqual(get_response.status_code, status.HTTP_404_NOT_FOUND)
+
+    ######################################################################
+    #  S U P P L E M E M N T A R Y   T E S T   C A S E S
+    ######################################################################
+    def test_method_not_allowed(self):
+        """It should not allow an illegal method call"""
+        resp = self.client.delete(f"{BASE_URL}")
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_str(self):
+        """The string representation is correct"""
+        account = AccountFactory()
+
+        self.assertRegexpMatches(str(account), "Account.*")
+
+    def test_deser(self):
+        """Deserialization supplies missing date"""
+        account = AccountFactory()
+
+        serialized = account.serialize()
+        del(serialized["date_joined"])
+        deserialized = Account().deserialize(serialized)
+
+        self.assertIsNotNone(deserialized.date_joined)
