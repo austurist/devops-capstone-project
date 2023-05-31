@@ -8,6 +8,7 @@ from flask import jsonify, request, make_response, abort, url_for   # noqa; F401
 from service.models import Account
 from service.common import status  # HTTP Status Codes
 from . import app  # Import Flask application
+from .common.error_handlers import not_found
 
 
 ############################################################
@@ -51,8 +52,8 @@ def create_accounts():
     account.create()
     message = account.serialize()
     # Uncomment once get_accounts has been implemented
-    # location_url = url_for("get_accounts", account_id=account.id, _external=True)
-    location_url = "/"  # Remove once get_accounts has been implemented
+    location_url = url_for("read_account", account_id=account.id, _external=True)
+    # location_url = "/"  # Remove once get_accounts has been implemented
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
@@ -79,7 +80,8 @@ def read_account(account_id):
     account = Account.find(account_id)
 
     if not account:
-        abort(status.HTTP_404_NOT_FOUND, f"Account {account_id} does not exist.")
+        app.logger.error("Account %s does not exist.", account_id)
+        return not_found(f"Account {account_id} does not exist.")
 
     return account.serialize(), status.HTTP_200_OK
 
