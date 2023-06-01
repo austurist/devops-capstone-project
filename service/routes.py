@@ -8,7 +8,7 @@ from flask import jsonify, request, make_response, abort, url_for   # noqa; F401
 from service.models import Account
 from service.common import status  # HTTP Status Codes
 from . import app  # Import Flask application
-from .common.error_handlers import not_found, request_validation_error
+from .common.error_handlers import not_found
 
 
 ############################################################
@@ -67,7 +67,7 @@ def create_accounts():
 # LIST ALL ACCOUNTS
 ######################################################################
 
-# ... place you code here to LIST accounts ...
+
 @app.route("/accounts", methods=["GET"])
 def list_accounts():
     """
@@ -81,7 +81,7 @@ def list_accounts():
     return jsonify(account_sers), status.HTTP_200_OK
 
 
-######################]################################################
+######################################################################
 # READ AN ACCOUNT
 ######################################################################
 
@@ -105,7 +105,7 @@ def read_account(account_id):
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
 
-# ... place you code here to UPDATE an account ...
+
 @app.route("/accounts/<int:account_id>", methods=["PUT"])
 def update_account(account_id):
     """
@@ -126,7 +126,7 @@ def update_account(account_id):
 # DELETE AN ACCOUNT
 ######################################################################
 
-# ... place you code here to DELETE an account ...
+
 @app.route("/accounts/<int:account_id>", methods=["DELETE"])
 def delete_account(account_id):
     """
