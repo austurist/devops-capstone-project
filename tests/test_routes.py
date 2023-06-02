@@ -225,6 +225,14 @@ class TestAccountService(TestCase):
             self.assertIn(k, resp.headers)
             self.assertEqual(v, resp.headers.get(k))
 
+
+    def test_cors_security(self):
+        """It should return a CORS header"""
+        response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check for the CORS header
+        self.assertEqual(response.headers.get('Access-Control-Allow-Origin'), '*')
+
     ######################################################################
     #  S U P P L E M E M N T A R Y   T E S T   C A S E S
     ######################################################################
