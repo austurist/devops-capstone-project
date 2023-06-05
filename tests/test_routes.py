@@ -165,7 +165,7 @@ class TestAccountService(TestCase):
         self.assertEqual(original_response.status_code, status.HTTP_201_CREATED)
         read_account = original_response.get_json()
 
-        #update account
+        # update account
         read_account["name"] += " Foo"
         read_account_id = read_account["id"]
         updated_response = self.client.put(
@@ -225,7 +225,6 @@ class TestAccountService(TestCase):
             self.assertIn(k, resp.headers)
             self.assertEqual(v, resp.headers.get(k))
 
-
     def test_cors_security(self):
         """It should return a CORS header"""
         response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
@@ -252,7 +251,7 @@ class TestAccountService(TestCase):
         account = AccountFactory()
 
         serialized = account.serialize()
-        del(serialized["date_joined"])
+        del (serialized["date_joined"])
         deserialized = Account().deserialize(serialized)
 
         self.assertIsNotNone(deserialized.date_joined)
